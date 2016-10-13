@@ -32,6 +32,8 @@ public class CameraStudio extends org.bukkit.plugin.java.JavaPlugin implements L
 
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 		getLogger().info("CameraStudio enabled");
 	}
 
@@ -43,14 +45,17 @@ public class CameraStudio extends org.bukkit.plugin.java.JavaPlugin implements L
 
 	@EventHandler
 	public void onPlayerJoined(final PlayerJoinEvent event) {
-		getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			public void run() {
-				event.getPlayer().sendMessage(CameraStudio.prefix
-						+ "This server is running the Camera Studio Plugin v1.0 by " + ChatColor.AQUA + "CrushedPixel");
-				event.getPlayer()
-						.sendMessage(CameraStudio.prefix + ChatColor.YELLOW + "http://youtube.com/CrushedPixel");
-			}
-		}, 10L);
+		if (getConfig().getBoolean("show-join-message")) {
+			getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+				public void run() {
+					event.getPlayer().sendMessage(
+							CameraStudio.prefix + "This server is running the Camera Studio Plugin v1.0 by "
+									+ ChatColor.AQUA + "CrushedPixel");
+					event.getPlayer()
+							.sendMessage(CameraStudio.prefix + ChatColor.YELLOW + "http://youtube.com/CrushedPixel");
+				}
+			}, 10L);
+		}
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -147,6 +152,17 @@ public class CameraStudio extends org.bukkit.plugin.java.JavaPlugin implements L
 					this.points.remove(player);
 					player.sendMessage(prefix + "Successfully removed all points");
 					return true;
+				}
+				
+				if (subcmd.equalsIgnoreCase("reload")) {
+					if (sender.hasPermission("camerastudio.admin")) {
+						this.reloadConfig();
+						sender.sendMessage(prefix + ChatColor.YELLOW + "The configuration files have been reloaded!");
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.DARK_RED + "You do not have permission to use this command.");
+						return true;
+					}
 				}
 
 				if (subcmd.equalsIgnoreCase("goto")) {

@@ -1,0 +1,5 @@
+#          CPCameraStudioReborn by CrushedPixel.             
+#                 Updated by chrismin13                      
+
+# Disable or enable the message the plugin sends when a player joins. Default is true.
+show-join-message: false

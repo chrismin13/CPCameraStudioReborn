@@ -1,6 +1,6 @@
 name: CPCameraStudioReborn
 main: eu.crushedpixel.camerastudio.CameraStudio
-version: 1.0
+version: 1.1
 
 commands:
   cam:
@@ -43,12 +43,20 @@ commands:
     usage: /<command>
     permission: camerastudio
     permission-message: You don't have permission to execute this command!
+  cam reload:
+    description: Reloads the configuration files.
+    usage: /<command>
+    permission: camerastudio.reload
+    permission-message: You don't have permission to execute this command!
   cam help:
     description: Displays the help page for CPCameraStudio.
     usage: /<command>
 
-
 permissions:
   camerastudio:
     description: Allows the player to use all /cam commands
+    default: op
+permissions:
+  camerastudio.reload:
+    description: Allows the player to reload the configuration files.
     default: op
