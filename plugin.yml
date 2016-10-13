@@ -1,0 +1,54 @@
+name: CPCameraStudioReborn
+main: eu.crushedpixel.camerastudio.CameraStudio
+version: 1.0
+
+commands:
+  cam:
+    description: The main command for CPCameraStudio.
+    usage: /<command> <subcommand> [args]
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam p:
+    description: Adds the current location to the Camera Path.
+    usage: /<command>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam r:
+    description: Removes the given point from the Camera Path. If not specified, it removes the last point.
+    usage: /<command> [pos]
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam list:
+    description: Lists up all points of the Camera Path.
+    usage: /<command>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command! 
+  cam reset:
+    description: Removes all points from the Camera Path.
+    usage: /<command>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam goto:
+    description: Teleports the player to the specified point.
+    usage: /<command> <pos>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam start:
+    description: Moves the player along the Camera Path in the given time.
+    usage: /<command> <duration>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam stop:
+    description: Stops the travelling immediately.
+    usage: /<command>
+    permission: camerastudio
+    permission-message: You don't have permission to execute this command!
+  cam help:
+    description: Displays the help page for CPCameraStudio.
+    usage: /<command>
+
+
+permissions:
+  camerastudio:
+    description: Allows the player to use all /cam commands
+    default: op
