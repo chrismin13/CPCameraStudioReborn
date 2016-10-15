@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,9 +17,9 @@ import org.bukkit.entity.Player;
 
 public class CamCommand implements CommandExecutor {
 
-	private HashMap<Player, List<Location>> points = new HashMap<Player, List<Location>>();
-	private HashSet<Player> stopping = new HashSet<Player>();
-	private HashSet<Player> travelling = new HashSet<Player>();
+	private HashMap<UUID, List<Location>> points = new HashMap<UUID, List<Location>>();
+	private HashSet<UUID> stopping = CameraStudio.stopping;
+	private HashSet<UUID> travelling = CameraStudio.travelling;
 	private static String prefix = CameraStudio.prefix;
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -39,13 +40,13 @@ public class CamCommand implements CommandExecutor {
 				args = newArgs;
 
 				if (subcmd.equalsIgnoreCase("p")) {
-					List<Location> locs = (List<Location>) this.points.get(player);
+					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if (locs == null) {
 						locs = new ArrayList<Location>();
 					}
 
 					locs.add(player.getLocation());
-					this.points.put(player, locs);
+					this.points.put(player.getUniqueId(), locs);
 
 					player.sendMessage(prefix + "Point " + locs.size() + " has been set");
 
@@ -53,7 +54,7 @@ public class CamCommand implements CommandExecutor {
 				}
 
 				if (subcmd.equalsIgnoreCase("r")) {
-					List<Location> locs = (List<Location>) this.points.get(player);
+					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if (locs == null) {
 						locs = new ArrayList<Location>();
 					}
@@ -88,12 +89,12 @@ public class CamCommand implements CommandExecutor {
 						}
 					}
 
-					this.points.put(player, locs);
+					this.points.put(player.getUniqueId(), locs);
 					return true;
 				}
 
 				if (subcmd.equalsIgnoreCase("list")) {
-					List<Location> locs = (List<Location>) this.points.get(player);
+					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if ((locs == null) || (locs.size() == 0)) {
 						player.sendMessage(prefix + ChatColor.RED + "You don't have any points set");
 						return true;
@@ -113,7 +114,7 @@ public class CamCommand implements CommandExecutor {
 				if (subcmd.equalsIgnoreCase("reset")) {
 					// Made an error, replaced it with the line below:
 					// this.points.put(player, new ArrayList<Object>());
-					this.points.remove(player);
+					this.points.remove(player.getUniqueId());
 					player.sendMessage(prefix + "Successfully removed all points");
 					return true;
 				}
@@ -133,7 +134,7 @@ public class CamCommand implements CommandExecutor {
 					if (args.length == 1) {
 						try {
 							int pos = Integer.valueOf(args[0]).intValue();
-							List<Location> locs = (List<Location>) this.points.get(player);
+							List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 							if ((locs != null) && (locs.size() >= pos)) {
 								player.teleport((Location) locs.get(pos - 1));
 								player.sendMessage(prefix + "Teleported to Point " + pos);
@@ -158,11 +159,11 @@ public class CamCommand implements CommandExecutor {
 				}
 
 				if (subcmd.equalsIgnoreCase("stop")) {
-					this.stopping.add(player);
+					this.stopping.add(player.getUniqueId());
 					player.sendMessage(prefix + "Travelling has been cancelled");
 					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
 						public void run() {
-							stopping.remove(player);
+							stopping.remove(player.getUniqueId());
 						}
 					}, 2L);
 
@@ -170,18 +171,33 @@ public class CamCommand implements CommandExecutor {
 				}
 
 				if (subcmd.equalsIgnoreCase("help")) {
+					if (args.length == 0) {
 					player.performCommand("help CPCameraStudioReborn");
+					return true;
+					} else {
+						if (args.length == 1) {
+							try { 
+								player.performCommand("help CPCameraStudioReborn " + Integer.parseInt(args[0]));
+								return true;
+						    } catch(NumberFormatException e) {
+						    	player.sendMessage(prefix + ChatColor.YELLOW + args[0] + ChatColor.RED + "is not a number!");
+						        return true;
+						    }
+						} else {
+							player.sendMessage(prefix + ChatColor.RED + "Too many arguements! Usage: " + ChatColor.YELLOW + "/cam help <pagenumber>");
+						}
+					}
 					return true;
 				}
 
 				if (subcmd.equalsIgnoreCase("start")) {
-					if (this.travelling.contains(player)) {
+					if (travelling.contains(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are already travelling");
 						return true;
 					}
 					if (args.length == 1) {
 						try {
-							List<Location> locs = (List<Location>) this.points.get(player);
+							List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 
 							if ((locs == null) || (locs.size() <= 1)) {
 								player.sendMessage(prefix + ChatColor.RED + "Not enough points set");
@@ -207,14 +223,14 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 				if (subcmd.equalsIgnoreCase("save")) {
-					if (this.travelling.contains(player)) {
+					if (this.travelling.contains(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are currently travelling");
 						return true;
 					}
 					if (args.length == 1) {
-						if (points.get(player) != null) {
+						if (points.get(player.getUniqueId()) != null) {
 							List<String> ListOfLocations = new ArrayList<String>();
-							for (Location loc : points.get(player)) {
+							for (Location loc : points.get(player.getUniqueId())) {
 								ListOfLocations.add(Files.getSerializedLocation(loc));
 							}
 							sender.sendMessage(new File(CameraStudio.instance.getDataFolder() + "/SavedPaths").toString());
@@ -238,7 +254,7 @@ public class CamCommand implements CommandExecutor {
 					}
 				}
 				if (subcmd.equalsIgnoreCase("load")) {
-					if (this.travelling.contains(player)) {
+					if (this.travelling.contains(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are currently travelling");
 						return true;
 					}
@@ -251,7 +267,7 @@ public class CamCommand implements CommandExecutor {
 								for (String string : ListOfLocationsStrings) {
 									ListOfLocations.add(Files.getDeserializedLocation(string));
 								}
-								points.put(player, ListOfLocations);
+								points.put(player.getUniqueId(), ListOfLocations);
 								player.sendMessage(prefix + ChatColor.YELLOW + "Path: " + ChatColor.BLUE + args[0]
 										+ ChatColor.YELLOW + " has been loaded!");
 								return true;

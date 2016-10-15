@@ -51,12 +51,17 @@ commands:
   cam help:
     description: Displays the help page for CPCameraStudio.
     usage: /<command>
+  cam save:
+    description: Saves the paths you currently have.
+    usage: /<command>
+  cam load: 
+    description: Loads a path from a file.
+    usage: /<command>
 
 permissions:
   camerastudio:
     description: Allows the player to use all /cam commands
     default: op
-permissions:
   camerastudio.reload:
     description: Allows the player to reload the configuration files.
     default: op

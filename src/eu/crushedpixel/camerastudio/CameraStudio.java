@@ -9,6 +9,7 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,8 +24,8 @@ public class CameraStudio extends JavaPlugin implements Listener {
 	public static JavaPlugin instance;
 	static String prefix = ChatColor.AQUA + "[" + ChatColor.DARK_AQUA + "CP" + ChatColor.AQUA + "CameraStudio] "
 			+ ChatColor.GREEN;
-	private static HashSet<Player> travelling = new HashSet<Player>();
-	private static HashSet<Player> stopping = new HashSet<Player>();
+	static HashSet<UUID> travelling = new HashSet<UUID>();
+	static HashSet<UUID> stopping = new HashSet<UUID>();
 	
 	public void onDisable() {
 		getLogger().info("CameraStudio disabled");
@@ -125,7 +126,7 @@ public class CameraStudio extends JavaPlugin implements Listener {
 			player.setAllowFlight(true);
 			player.teleport((Location) tps.get(0));
 			player.setFlying(true);
-			travelling.add(player);
+			travelling.add(player.getUniqueId());
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
 				private int ticks = 0;
 
@@ -134,17 +135,17 @@ public class CameraStudio extends JavaPlugin implements Listener {
 
 						player.teleport((Location) tps.get(this.ticks));
 
-						if (!stopping.contains(player)) {
+						if (!stopping.contains(player.getUniqueId())) {
 							Bukkit.getServer().getScheduler()
 									.scheduleSyncDelayedTask(CameraStudio.instance, this, 1L);
 						} else {
-							stopping.remove(player);
-							travelling.remove(player);
+							stopping.remove(player.getUniqueId());
+							travelling.remove(player.getUniqueId());
 						}
 
 						this.ticks += 1;
 					} else {
-						travelling.remove(player);
+						travelling.remove(player.getUniqueId());
 						player.sendMessage(CompletedMessage);
 					}
 				}
