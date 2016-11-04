@@ -233,7 +233,6 @@ public class CamCommand implements CommandExecutor {
 							for (Location loc : points.get(player.getUniqueId())) {
 								ListOfLocations.add(Files.getSerializedLocation(loc));
 							}
-							sender.sendMessage(new File(CameraStudio.instance.getDataFolder() + "/SavedPaths").toString());
 							Files.save(ListOfLocations, (new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[0] + ".dat")));
 							player.sendMessage(prefix + ChatColor.YELLOW + "Path: " + ChatColor.BLUE + args[0]
 									+ ChatColor.YELLOW + " has been saved!");
