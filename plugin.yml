@@ -11,37 +11,37 @@ commands:
   cam p:
     description: Adds the current location to the Camera Path.
     usage: /<command>
-    permission: camerastudio
+    permission: camerastudio.point
     permission-message: You don't have permission to execute this command!
   cam r:
     description: Removes the given point from the Camera Path. If not specified, it removes the last point.
     usage: /<command> [pos]
-    permission: camerastudio
+    permission: camerastudio.remove
     permission-message: You don't have permission to execute this command!
   cam list:
     description: Lists up all points of the Camera Path.
     usage: /<command>
-    permission: camerastudio
+    permission: camerastudio.list
     permission-message: You don't have permission to execute this command! 
   cam reset:
     description: Removes all points from the Camera Path.
     usage: /<command>
-    permission: camerastudio
+    permission: camerastudio.reset
     permission-message: You don't have permission to execute this command!
   cam goto:
     description: Teleports the player to the specified point.
     usage: /<command> <pos>
-    permission: camerastudio
+    permission: camerastudio.goto
     permission-message: You don't have permission to execute this command!
   cam start:
     description: Moves the player along the Camera Path in the given time.
     usage: /<command> <duration>
-    permission: camerastudio
+    permission: camerastudio.start
     permission-message: You don't have permission to execute this command!
   cam stop:
     description: Stops the travelling immediately.
     usage: /<command>
-    permission: camerastudio
+    permission: camerastudio.stop
     permission-message: You don't have permission to execute this command!
   cam reload:
     description: Reloads the configuration files.
@@ -51,12 +51,18 @@ commands:
   cam help:
     description: Displays the help page for CPCameraStudio.
     usage: /<command>
+    permission: camerastudio.help
+    permission-message: You don't have permission to execute this command!
   cam save:
     description: Saves the paths you currently have.
     usage: /<command>
+    permission: camerastudio.save
+    permission-message: You don't have permission to execute this command!
   cam load: 
     description: Loads a path from a file.
     usage: /<command>
+    permission: camerastudio.load
+    permission-message: You don't have permission to execute this command!
 
 permissions:
   camerastudio:

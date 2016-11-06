@@ -1,7 +1,9 @@
 package eu.crushedpixel.camerastudio;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 public class CamCommand implements CommandExecutor {
@@ -39,7 +42,7 @@ public class CamCommand implements CommandExecutor {
 
 				args = newArgs;
 
-				if (subcmd.equalsIgnoreCase("p")) {
+				if (subcmd.equalsIgnoreCase("p") && (player.hasPermission("camerastudio.point"))) {
 					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if (locs == null) {
 						locs = new ArrayList<Location>();
@@ -53,7 +56,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("r")) {
+				if (subcmd.equalsIgnoreCase("r") && (player.hasPermission("camerastudio.remove"))) {
 					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if (locs == null) {
 						locs = new ArrayList<Location>();
@@ -93,7 +96,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("list")) {
+				if (subcmd.equalsIgnoreCase("list") && (player.hasPermission("camerastudio.list"))) {
 					List<Location> locs = (List<Location>) this.points.get(player.getUniqueId());
 					if ((locs == null) || (locs.size() == 0)) {
 						player.sendMessage(prefix + ChatColor.RED + "You don't have any points set");
@@ -111,7 +114,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("reset")) {
+				if (subcmd.equalsIgnoreCase("reset") && (player.hasPermission("camerastudio.reset"))) {
 					// Made an error, replaced it with the line below:
 					// this.points.put(player, new ArrayList<Object>());
 					this.points.remove(player.getUniqueId());
@@ -130,7 +133,7 @@ public class CamCommand implements CommandExecutor {
 					}
 				}
 
-				if (subcmd.equalsIgnoreCase("goto")) {
+				if (subcmd.equalsIgnoreCase("goto") && (player.hasPermission("camerastudio.goto"))) {
 					if (args.length == 1) {
 						try {
 							int pos = Integer.valueOf(args[0]).intValue();
@@ -158,7 +161,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("stop")) {
+				if (subcmd.equalsIgnoreCase("stop") && (player.hasPermission("camerastudio.stop"))) {
 					this.stopping.add(player.getUniqueId());
 					player.sendMessage(prefix + "Travelling has been cancelled");
 					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
@@ -170,7 +173,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("help")) {
+				if (subcmd.equalsIgnoreCase("help") && (player.hasPermission("camerastudio.help"))) {
 					if (args.length == 0) {
 					player.performCommand("help CPCameraStudioReborn");
 					return true;
@@ -190,7 +193,7 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 
-				if (subcmd.equalsIgnoreCase("start")) {
+				if (subcmd.equalsIgnoreCase("start") && (player.hasPermission("camerastudio.start"))) {
 					if (travelling.contains(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are already travelling");
 						return true;
@@ -222,18 +225,36 @@ public class CamCommand implements CommandExecutor {
 					}
 					return true;
 				}
-				if (subcmd.equalsIgnoreCase("save")) {
-					if (this.travelling.contains(player.getUniqueId())) {
-						player.sendMessage(prefix + ChatColor.RED + "You are currently travelling");
-						return true;
-					}
+				if (subcmd.equalsIgnoreCase("save") && (player.hasPermission("camerastudio.save"))) {
 					if (args.length == 1) {
 						if (points.get(player.getUniqueId()) != null) {
-							List<String> ListOfLocations = new ArrayList<String>();
+							
+							File file = new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[0] + ".yml");
+							
+							try {
+								file.getParentFile().mkdirs();
+								file.createNewFile();
+							} catch (IOException e) {
+								player.sendMessage(prefix + ChatColor.RED + "An error occured while creating the file! Is there enough space left?");
+								return true;
+							}
+							
+							YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+							
+							Collection<String> ListOfLocations = new ArrayList<String>();
 							for (Location loc : points.get(player.getUniqueId())) {
 								ListOfLocations.add(Files.getSerializedLocation(loc));
 							}
-							Files.save(ListOfLocations, (new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[0] + ".dat")));
+							
+							yaml.set("Locations", ListOfLocations);
+							
+							try {
+								yaml.save(file);
+							} catch (IOException e) {
+								player.sendMessage(prefix + ChatColor.RED + "An error occured while creating the file! Is there enough space left?");
+								return true;
+							}
+							
 							player.sendMessage(prefix + ChatColor.YELLOW + "Path: " + ChatColor.BLUE + args[0]
 									+ ChatColor.YELLOW + " has been saved!");
 							return true;
@@ -252,28 +273,27 @@ public class CamCommand implements CommandExecutor {
 						}
 					}
 				}
-				if (subcmd.equalsIgnoreCase("load")) {
+				if (subcmd.equalsIgnoreCase("load") && (player.hasPermission("camerastudio.load"))) {
 					if (this.travelling.contains(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are currently travelling");
 						return true;
 					}
 					if (args.length == 1) {
-							@SuppressWarnings("unchecked")
-							List<String> ListOfLocationsStrings = (List<String>) Files
-									.load(new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[0] + ".dat"));
-							if (ListOfLocationsStrings != null) {
-								List<Location> ListOfLocations = new ArrayList<Location>();
-								for (String string : ListOfLocationsStrings) {
-									ListOfLocations.add(Files.getDeserializedLocation(string));
-								}
-								points.put(player.getUniqueId(), ListOfLocations);
-								player.sendMessage(prefix + ChatColor.YELLOW + "Path: " + ChatColor.BLUE + args[0]
-										+ ChatColor.YELLOW + " has been loaded!");
-								return true;
-							} else {
-								player.sendMessage(prefix + ChatColor.RED + "Invalid file!");
-								return true;
-							}
+						File file = new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[0] + ".yml");
+						YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+						List<String> ListOfLocationsStrings = yaml.getStringList("Locations");
+						List<Location> ListOfLocations = new ArrayList<Location>();
+						for (String string : ListOfLocationsStrings) {
+							ListOfLocations.add(Files.getDeserializedLocation(string));
+						}
+						if (ListOfLocations.isEmpty()) {
+							player.sendMessage(prefix + ChatColor.RED + "File was either invalid or empty. No points have been loaded!");
+							return true;
+						}
+						points.put(player.getUniqueId(), ListOfLocations);
+						player.sendMessage(prefix + ChatColor.YELLOW + "Path: " + ChatColor.BLUE + args[0]
+								+ ChatColor.YELLOW + " has been loaded!");
+						return true;
 					} else {
 						if (args.length >= 1) {
 							player.sendMessage(prefix + ChatColor.RED + "Too many arguements! Usage: "
