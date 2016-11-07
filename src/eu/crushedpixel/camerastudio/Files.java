@@ -1,10 +1,5 @@
 package eu.crushedpixel.camerastudio;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -13,34 +8,7 @@ import org.bukkit.World;
 
 public class Files {
 
-	public static void save(Object object, File file) {
-		try {
-			if (!file.exists()) {
-				file.getParentFile().mkdir();
-				file.createNewFile();
-			}
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream (file));
-			
-			oos.writeObject(object);
-			oos.flush();
-			oos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static Object load(File file) {
-		try {
-			 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			 Object result = ois.readObject();
-			 ois.close();
-			 return result;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-	
-    public static String getSerializedLocation(Location loc) {
+	public static String getSerializedLocation(Location loc) {
         return loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getWorld().getUID() + ";" + loc.getPitch() + ";" + loc.getYaw();
     }
  

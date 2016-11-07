@@ -22,7 +22,6 @@ public class CamCommand implements CommandExecutor {
 
 	private HashMap<UUID, List<Location>> points = new HashMap<UUID, List<Location>>();
 	private HashSet<UUID> stopping = CameraStudio.stopping;
-	private HashSet<UUID> travelling = CameraStudio.travelling;
 	private static String prefix = CameraStudio.prefix;
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -194,7 +193,7 @@ public class CamCommand implements CommandExecutor {
 				}
 
 				if (subcmd.equalsIgnoreCase("start") && (player.hasPermission("camerastudio.start"))) {
-					if (travelling.contains(player.getUniqueId())) {
+					if (CameraStudio.isTravelling(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are already travelling");
 						return true;
 					}
@@ -274,7 +273,7 @@ public class CamCommand implements CommandExecutor {
 					}
 				}
 				if (subcmd.equalsIgnoreCase("load") && (player.hasPermission("camerastudio.load"))) {
-					if (this.travelling.contains(player.getUniqueId())) {
+					if (CameraStudio.isTravelling(player.getUniqueId())) {
 						player.sendMessage(prefix + ChatColor.RED + "You are currently travelling");
 						return true;
 					}

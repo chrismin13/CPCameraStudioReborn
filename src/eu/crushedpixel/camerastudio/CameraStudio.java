@@ -39,7 +39,7 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		this.getCommand("cam").setExecutor(new CamCommand());
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		getLogger().info("CameraStudio enabled");
+		getLogger().info(prefix + "CPCameraStudioReborn has been enabled!");
 	}
 
 	public static double round(double unrounded, int precision) {
@@ -230,4 +230,10 @@ public class CameraStudio extends JavaPlugin implements Listener {
 
 		return dXYZ;
 	}
+	
+	public static boolean isTravelling(UUID PlayerUUID) {
+		if (travelling.contains(PlayerUUID)) return true;
+		return false;
+	}
+	
 }
