@@ -146,12 +146,12 @@ public class CameraStudio extends JavaPlugin implements Listener {
 						this.ticks += 1;
 					} else {
 						travelling.remove(player.getUniqueId());
-						player.sendMessage(CompletedMessage);
+						if (CompletedMessage != null) player.sendMessage(CompletedMessage);
 					}
 				}
 			});
 		} catch (Exception e) {
-			player.sendMessage(FailMessage);
+			if (FailMessage != null) player.sendMessage(FailMessage);
 		}
 	}
 	

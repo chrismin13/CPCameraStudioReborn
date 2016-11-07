@@ -217,6 +217,47 @@ public class CamCommand implements CommandExecutor {
 					} else if (args.length == 0) {
 						player.sendMessage(prefix + ChatColor.RED + "You must specify the travel duration. "
 								+ ChatColor.YELLOW + "Example: /start 3m10s");
+					} else if ((args.length == 2) || (args.length == 3)){
+						
+						File file = new File(CameraStudio.instance.getDataFolder() + "/SavedPaths", args[1] + ".yml");
+						YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+						List<String> ListOfLocationsStrings = yaml.getStringList("Locations");
+						List<Location> ListOfLocations = new ArrayList<Location>();
+						for (String string : ListOfLocationsStrings) {
+							ListOfLocations.add(Files.getDeserializedLocation(string));
+						}
+						if (ListOfLocations.isEmpty()) {
+							player.sendMessage(prefix + ChatColor.RED + "File " + ChatColor.GREEN + args[1] + ChatColor.RED + " was either invalid or empty.");
+							return true;
+						}
+						
+						try {
+							if (ListOfLocations.size() <= 1) {
+								player.sendMessage(prefix + ChatColor.RED + "Not enough points set");
+								return true;
+							}
+
+							if (args[2] != null) {
+								if (args[2].equalsIgnoreCase("silent")) {
+									CameraStudio.travel(player, ListOfLocations, CameraStudio.parseTimeString(args[0]), null, null);
+								} else {
+									player.sendMessage(prefix + ChatColor.RED
+											+ "Too many arguements! You must only specify the travel duration. " + ChatColor.YELLOW
+											+ "Example: /start 3m10s");
+								}
+							} else {
+							CameraStudio.travel(player, ListOfLocations, CameraStudio.parseTimeString(args[0]),
+									prefix + ChatColor.RED + "An error occured during traveling",
+									prefix + "Travelling finished");
+							}
+
+						} catch (Exception e) {
+							player.sendMessage(prefix + ChatColor.RED + "You must specify the travel duration. "
+									+ ChatColor.YELLOW + "Example: /start 3m10s " + args[1]);
+						}
+						
+						return true;
+						
 					} else {
 						player.sendMessage(prefix + ChatColor.RED
 								+ "Too many arguements! You must only specify the travel duration. " + ChatColor.YELLOW
@@ -286,7 +327,7 @@ public class CamCommand implements CommandExecutor {
 							ListOfLocations.add(Files.getDeserializedLocation(string));
 						}
 						if (ListOfLocations.isEmpty()) {
-							player.sendMessage(prefix + ChatColor.RED + "File was either invalid or empty. No points have been loaded!");
+							player.sendMessage(prefix + ChatColor.RED + "File " + ChatColor.GREEN + args[1] + ChatColor.RED + " was either invalid or empty. No points have been loaded!");
 							return true;
 						}
 						points.put(player.getUniqueId(), ListOfLocations);
