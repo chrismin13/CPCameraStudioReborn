@@ -236,4 +236,13 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		return false;
 	}
 	
+	public static void stop(UUID PlayerUUID) {
+		stopping.add(PlayerUUID);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
+			public void run() {
+				stopping.remove(PlayerUUID);
+			}
+		}, 2L);
+	}
+	
 }

@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -21,7 +19,6 @@ import org.bukkit.entity.Player;
 public class CamCommand implements CommandExecutor {
 
 	private HashMap<UUID, List<Location>> points = new HashMap<UUID, List<Location>>();
-	private HashSet<UUID> stopping = CameraStudio.stopping;
 	private static String prefix = CameraStudio.prefix;
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -161,14 +158,8 @@ public class CamCommand implements CommandExecutor {
 				}
 
 				if (subcmd.equalsIgnoreCase("stop") && (player.hasPermission("camerastudio.stop"))) {
-					this.stopping.add(player.getUniqueId());
+					CameraStudio.stop(player.getUniqueId());
 					player.sendMessage(prefix + "Travelling has been cancelled");
-					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
-						public void run() {
-							stopping.remove(player.getUniqueId());
-						}
-					}, 2L);
-
 					return true;
 				}
 
