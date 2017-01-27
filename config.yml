@@ -3,3 +3,6 @@
 
 # Disable or enable the message the plugin sends when a player joins. Default is true.
 show-join-message: false
+
+# Set the preview time between every point
+preview-time: 5s
