@@ -14,10 +14,12 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CameraStudio extends JavaPlugin implements Listener {
@@ -26,15 +28,15 @@ public class CameraStudio extends JavaPlugin implements Listener {
 			+ ChatColor.GREEN;
 	static HashSet<UUID> travelling = new HashSet<UUID>();
 	static HashSet<UUID> stopping = new HashSet<UUID>();
-	
+
 	public void onDisable() {
 		getLogger().info("CameraStudio disabled");
 	}
 
 	public void onEnable() {
-		
+
 		instance = this;
-		
+
 		getServer().getPluginManager().registerEvents(this, this);
 		this.getCommand("cam").setExecutor(new CamCommand());
 		getConfig().options().copyDefaults(true);
@@ -53,17 +55,25 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		if (getConfig().getBoolean("show-join-message")) {
 			getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 				public void run() {
-					event.getPlayer().sendMessage(
-							prefix + "This server is running the Camera Studio Plugin v1.0 by "
-									+ ChatColor.AQUA + "CrushedPixel");
 					event.getPlayer()
-							.sendMessage(prefix + ChatColor.YELLOW + "http://youtube.com/CrushedPixel");
+							.sendMessage(prefix + "This server is running the Camera Studio Plugin v"
+									+ instance.getDescription().getVersion() + " by " + ChatColor.AQUA
+									+ "CrushedPixel. Updated by chrismin13.");
+					event.getPlayer().sendMessage(prefix + ChatColor.YELLOW + "http://youtube.com/CrushedPixel");
 				}
 			}, 10L);
 		}
 	}
 
-	public static void travel(Player player, List<Location> locations, int time, String FailMessage, String CompletedMessage) {
+	@EventHandler
+	public void onPlayerLeave(final PlayerQuitEvent event) {
+		if (getConfig().getBoolean("clear-points-on-disconnect")
+				&& CamCommand.points.get(event.getPlayer().getUniqueId()) != null)
+			CamCommand.points.get(event.getPlayer().getUniqueId()).clear();
+	}
+
+	public static void travel(final Player player, List<Location> locations, int time, String FailMessage,
+			final String CompletedMessage) {
 		List<Double> diffs = new ArrayList<Double>();
 		List<Integer> travelTimes = new ArrayList<Integer>();
 
@@ -84,7 +94,7 @@ public class CameraStudio extends JavaPlugin implements Listener {
 
 		final List<Location> tps = new ArrayList<Location>();
 
-		org.bukkit.World w = player.getWorld();
+		World w = player.getWorld();
 
 		for (int i = 0; i < locations.size() - 1; i++) {
 			Location s = (Location) locations.get(i);
@@ -119,10 +129,12 @@ public class CameraStudio extends JavaPlugin implements Listener {
 						(float) (s.getPitch() + movePitch / t * x));
 				tps.add(l);
 			}
-			
+
 		}
-		
+
 		try {
+			final boolean hadFlight = player.getAllowFlight();
+			final boolean wasFlying = player.isFlying();
 			player.setAllowFlight(true);
 			player.teleport((Location) tps.get(0));
 			player.setFlying(true);
@@ -136,8 +148,7 @@ public class CameraStudio extends JavaPlugin implements Listener {
 						player.teleport((Location) tps.get(this.ticks));
 
 						if (!stopping.contains(player.getUniqueId())) {
-							Bukkit.getServer().getScheduler()
-									.scheduleSyncDelayedTask(CameraStudio.instance, this, 1L);
+							Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, this, 1L);
 						} else {
 							stopping.remove(player.getUniqueId());
 							travelling.remove(player.getUniqueId());
@@ -146,15 +157,19 @@ public class CameraStudio extends JavaPlugin implements Listener {
 						this.ticks += 1;
 					} else {
 						travelling.remove(player.getUniqueId());
-						if (CompletedMessage != null) player.sendMessage(CompletedMessage);
+						if (CompletedMessage != null)
+							player.sendMessage(CompletedMessage);
+						player.setFlying(wasFlying);
+						player.setAllowFlight(hadFlight);
 					}
 				}
-			});
+			}, 1L);
 		} catch (Exception e) {
-			if (FailMessage != null) player.sendMessage(FailMessage);
+			if (FailMessage != null)
+				player.sendMessage(FailMessage);
 		}
 	}
-	
+
 	public static int parseTimeString(String timeString) throws java.text.ParseException {
 		Date length;
 		try {
@@ -199,10 +214,10 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		cal.setTime(length);
 
 		int time = (cal.get(12) * 60 + cal.get(13)) * 20;
-		
+
 		return time;
 	}
-	
+
 	public static double positionDifference(Location cLoc, Location eLoc) {
 		double cX = cLoc.getX();
 		double cY = cLoc.getY();
@@ -230,19 +245,20 @@ public class CameraStudio extends JavaPlugin implements Listener {
 
 		return dXYZ;
 	}
-	
+
 	public static boolean isTravelling(UUID PlayerUUID) {
-		if (travelling.contains(PlayerUUID)) return true;
+		if (travelling.contains(PlayerUUID))
+			return true;
 		return false;
 	}
-	
-	public static void stop(UUID PlayerUUID) {
-		stopping.add(PlayerUUID);
+
+	public static void stop(final UUID playerUUID) {
+		stopping.add(playerUUID);
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(CameraStudio.instance, new Runnable() {
 			public void run() {
-				stopping.remove(PlayerUUID);
+				stopping.remove(playerUUID);
 			}
 		}, 2L);
 	}
-	
+
 }

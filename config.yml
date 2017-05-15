@@ -1,8 +1,33 @@
-#          CPCameraStudioReborn by CrushedPixel.             
-#                 Updated by chrismin13                      
-
-# Disable or enable the message the plugin sends when a player joins. Default is true.
-show-join-message: false
-
+# ------------------------------------------------------------------------------
+#                    CPCameraStudioReborn by CrushedPixel.             
+#                          Updated by chrismin13                      
+# ------------------------------------------------------------------------------
+#                            show-join-message:
+# Disable or enable the message the plugin sends when a player joins. 
+# Default is true.
+# ------------------------------------------------------------------------------
+#                               preview-time:
 # Set the preview time between every point
+# ------------------------------------------------------------------------------
+#                              maximum-points:
+# Set the maximum number of location points any player can have
+# You can override it by specifying the number through the permission node 
+# camerastudio.point.*
+# The asterisk can also be replaced with any number to set that as the limit.
+# ------------------------------------------------------------------------------
+#                            allowed-gamemodes:
+# Set the gamemodes from which you can use the '/cam' command
+# ------------------------------------------------------------------------------
+#                       clear-points-on-disconnect:
+# Set if you want the points that the player has defined to be cleared when he 
+# logs out of the server.
+# ------------------------------------------------------------------------------
+show-join-message: false
 preview-time: 5s
+maximum-points: 100
+allowed-gamemodes:
+ - SURVIVAL
+ - CREATIVE
+ - ADVENTURE
+ - SPECTATOR
+clear-points-on-disconnect: false
